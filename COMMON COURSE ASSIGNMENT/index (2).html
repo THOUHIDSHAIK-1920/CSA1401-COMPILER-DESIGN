@@ -1,0 +1,54 @@
+import sys
+from compiler import compile_expression
+
+def run_pipeline():
+    tests = [
+        ("Finance Expression", "finalValue = ((principal * rate * time) / 100) + (principal * (1 + rate/100)^time) - fees"),
+        ("Constant Folding Demo", "result = a * (2 + 3) * (10 / 2) + b"),
+        ("CSE Demo", "result = (a*b) + (a*b) - (c*d) + (d*c)"),
+        ("Cascading Dead-Code Demo", "result = (a + b) - (a + b) + c")
+    ]
+    
+    for title, expr in tests:
+        print("=" * 80)
+        print(f"TEST: {title}")
+        print(f"EXPRESSION: {expr}")
+        print("=" * 80)
+        
+        try:
+            res = compile_expression(expr)
+        except Exception as e:
+            print(f"Error compiling: {e}")
+            continue
+            
+        print("\n[FRONT END]")
+        print("AST:")
+        print(res.ast_text)
+        
+        print("\n[BACK END]")
+        print("Three-Address Code (TAC):")
+        for i, t in enumerate(res.tac):
+            print(f"  {i}: {t}")
+            
+        print("\nQuadruples:")
+        for i, q in enumerate(res.quads):
+            print(f"  {i}: {q}")
+            
+        print("\nTriples:")
+        for i, t in enumerate(res.triples):
+            print(f"  ({i}) {t}")
+            
+        print("\nOptimization Trace:")
+        for trace in res.opt_trace:
+            print(f"  {trace}")
+            
+        print("\nOptimized Quadruples:")
+        if not res.opt_quads:
+            print("  (Empty)")
+        for i, q in enumerate(res.opt_quads):
+            print(f"  {i}: {q}")
+            
+        print("\n" + res.report + "\n")
+
+if __name__ == "__main__":
+    run_pipeline()
